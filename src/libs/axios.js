@@ -1,5 +1,6 @@
 import axios from 'axios'
 import store from '@/store'
+import qs from 'qs'
 // import { Spin } from 'iview'
 const addErrorLog = errorInfo => {
   const { statusText, status, request: { responseURL } } = errorInfo
@@ -22,6 +23,7 @@ class HttpRequest {
       baseURL: this.baseUrl,
       headers: {
         //
+        'Content-Type': 'application/x-www-form-urlencoded'
       }
     }
     return config
@@ -39,7 +41,11 @@ class HttpRequest {
       if (!Object.keys(this.queue).length) {
         // Spin.show() // 不建议开启，因为界面不友好
       }
+      if (config.method === 'post') {
+        config.data = qs.stringify(config.data);
+      }
       this.queue[url] = true
+      console.log(config, 111)
       return config
     }, error => {
       return Promise.reject(error)
