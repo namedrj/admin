@@ -28,7 +28,13 @@ export default {
       'getUserInfo'
     ]),
     handleSubmit ({ userName, password }) {
-      this.handleLogin({ userName, password })
+      this.handleLogin({ userName, password }).then(res => {
+        if (res.data.status == 0) {
+          localStorage.setItem('token', res.data.token)
+        console.log(res)
+        this.$router.push('/home')
+        }
+      })
       // this.handleLogin({ userName, password }).then(res => {
       //   this.getUserInfo().then(res => {
       //     this.$router.push({
