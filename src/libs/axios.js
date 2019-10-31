@@ -42,10 +42,9 @@ class HttpRequest {
         // Spin.show() // 不建议开启，因为界面不友好
       }
       if (config.method === 'post') {
-        config.data = qs.stringify(config.data);
+        config.data = qs.stringify(config.data)
       }
       this.queue[url] = true
-      console.log(config, 111)
       return config
     }, error => {
       return Promise.reject(error)
