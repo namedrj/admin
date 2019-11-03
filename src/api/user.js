@@ -25,7 +25,7 @@ export const login = ({ userName, password }) => {
 
 export const logout = (token) => {
   return axios.request({
-    url: 'logout',
+    url: 'loginout',
     method: 'post'
   })
 }

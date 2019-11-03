@@ -31,6 +31,7 @@ export default {
       this.handleLogin({ userName, password }).then(res => {
         if (res.data.status == 0) {
           localStorage.setItem('token', res.data.token)
+          localStorage.setItem('username', userName)
         console.log(res)
         this.$router.push('/home')
         }
