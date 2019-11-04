@@ -29,3 +29,15 @@ export const logout = (token) => {
     method: 'post'
   })
 }
+
+export const channelInfo = () => {
+  const data = {
+    username: localStorage.getItem('username'),
+    token: localStorage.getItem('token')
+  }
+  return axios.request({
+    url: 'channelInfo',
+    data: data,
+    method: 'post'
+  })
+}

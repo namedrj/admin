@@ -1,6 +1,7 @@
 import {
   login,
-  logout
+  logout,
+  channelInfo
   // getUserInfo
 } from '@/api/user'
 import {
@@ -76,6 +77,13 @@ export default {
         // commit('setToken', '')
         // commit('setAccess', [])
         // resolve()
+      })
+    },
+    // 获取侧栏类目
+    handleChannelInfo ({ commit }, { userName, token }) {
+      return channelInfo({
+        userName,
+        token
       })
     },
     // 获取用户相关信息

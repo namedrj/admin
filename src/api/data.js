@@ -8,6 +8,14 @@ export const getTableData = (params) => {
   })
 }
 
+export const getExport = (params) => {
+  return axios.request({
+    url: 'channelExport',
+    data: params,
+    method: 'post'
+  })
+}
+
 export const getDragList = () => {
   return axios.request({
     url: 'get_drag_list',

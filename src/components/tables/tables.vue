@@ -3,8 +3,9 @@
     <div
       v-if="searchable && searchPlace === 'top'"
       class="search-con search-con-top"
+      style="display: flex;justify-content: flex-end;align-items: center;"
     >
-      <Select v-model="searchKey" class="search-col">
+      <!--<Select v-model="searchKey" class="search-col">
         <Option
           v-for="item in columns"
           v-if="item.key !== 'handle'"
@@ -12,8 +13,8 @@
           :key="`search-col-${item.key}`"
           >{{ item.title }}</Option
         >
-      </Select>
-      <Input
+      </Select>-->
+      <!--<Input
         @on-change="handleClear"
         clearable
         placeholder="输入关键字搜索"
@@ -22,14 +23,14 @@
       />
       <Button @click="handleSearch" class="search-btn" type="primary"
         ><Icon type="search" />&nbsp;&nbsp;搜索</Button
-      >
-      按日期筛选：<DatePicker
+      >-->
+      <!-- 按日期筛选：<DatePicker
         type="daterange"
         placement="bottom-end"
         placeholder="选择时间范围"
-        style="width: 200px"
+        style="width: 200px;"
         @on-change="onTimeRange"
-      ></DatePicker>
+      ></DatePicker> -->
     </div>
     <Table
       ref="tablesMain"
@@ -89,22 +90,23 @@
 </template>
 
 <script>
-import TablesEdit from "./edit.vue";
-import handleBtns from "./handle-btns";
-import "./index.less";
+import TablesEdit from './edit.vue'
+import handleBtns from './handle-btns'
+import './index.less'
+import { getTableData, getExport } from "@/api/data";
 export default {
-  name: "Tables",
+  name: 'Tables',
   props: {
     value: {
       type: Array,
-      default() {
-        return [];
+      default () {
+        return []
       }
     },
     columns: {
       type: Array,
-      default() {
-        return [];
+      default () {
+        return []
       }
     },
     size: String,
@@ -132,8 +134,8 @@ export default {
     },
     rowClassName: {
       type: Function,
-      default() {
-        return "";
+      default () {
+        return ''
       }
     },
     context: {
@@ -171,7 +173,7 @@ export default {
      */
     searchPlace: {
       type: String,
-      default: "top"
+      default: 'top'
     }
   },
   /**
@@ -180,18 +182,18 @@ export default {
    * @on-cancel-edit 返回值 {Object} 同上
    * @on-save-edit 返回值 {Object} ：除上面三个参数外，还有一个value: 修改后的数据
    */
-  data() {
+  data () {
     return {
       insideColumns: [],
       insideTableData: [],
-      edittingCellId: "",
-      edittingText: "",
-      searchValue: "",
-      searchKey: ""
-    };
+      edittingCellId: '',
+      edittingText: '',
+      searchValue: '',
+      searchKey: ''
+    }
   },
   methods: {
-    suportEdit(item, index) {
+    suportEdit (item, index) {
       item.render = (h, params) => {
         return h(TablesEdit, {
           props: {
@@ -202,140 +204,157 @@ export default {
           },
           on: {
             input: val => {
-              this.edittingText = val;
+              this.edittingText = val
             },
-            "on-start-edit": params => {
-              this.edittingCellId = `editting-${params.index}-${params.column.key}`;
-              this.$emit("on-start-edit", params);
+            'on-start-edit': params => {
+              this.edittingCellId = `editting-${params.index}-${params.column.key}`
+              this.$emit('on-start-edit', params)
             },
-            "on-cancel-edit": params => {
-              this.edittingCellId = "";
-              this.$emit("on-cancel-edit", params);
+            'on-cancel-edit': params => {
+              this.edittingCellId = ''
+              this.$emit('on-cancel-edit', params)
             },
-            "on-save-edit": params => {
+            'on-save-edit': params => {
               this.value[params.row.initRowIndex][
                 params.column.key
-              ] = this.edittingText;
-              this.$emit("input", this.value);
+              ] = this.edittingText
+              this.$emit('input', this.value)
               this.$emit(
-                "on-save-edit",
+                'on-save-edit',
                 Object.assign(params, { value: this.edittingText })
-              );
-              this.edittingCellId = "";
+              )
+              this.edittingCellId = ''
             }
           }
-        });
-      };
-      return item;
+        })
+      }
+      return item
     },
-    surportHandle(item) {
-      let options = item.options || [];
-      let insideBtns = [];
+    surportHandle (item) {
+      let options = item.options || []
+      let insideBtns = []
       options.forEach(item => {
-        if (handleBtns[item]) insideBtns.push(handleBtns[item]);
-      });
-      let btns = item.button ? [].concat(insideBtns, item.button) : insideBtns;
+        if (handleBtns[item]) insideBtns.push(handleBtns[item])
+      })
+      let btns = item.button ? [].concat(insideBtns, item.button) : insideBtns
       item.render = (h, params) => {
-        params.tableData = this.value;
-        return h("div", btns.map(item => item(h, params, this)));
-      };
-      return item;
+        params.tableData = this.value
+        return h('div', btns.map(item => item(h, params, this)))
+      }
+      return item
     },
-    handleColumns(columns) {
+    handleColumns (columns) {
       this.insideColumns = columns.map((item, index) => {
-        let res = item;
-        if (res.editable) res = this.suportEdit(res, index);
-        if (res.key === "handle") res = this.surportHandle(res);
-        return res;
-      });
+        let res = item
+        if (res.editable) res = this.suportEdit(res, index)
+        if (res.key === 'handle') res = this.surportHandle(res)
+        return res
+      })
     },
-    setDefaultSearchKey() {
+    setDefaultSearchKey () {
       this.searchKey =
-        this.columns[0].key !== "handle"
+        this.columns[0].key !== 'handle'
           ? this.columns[0].key
           : this.columns.length > 1
-          ? this.columns[1].key
-          : "";
+            ? this.columns[1].key
+            : ''
     },
-    handleClear(e) {
-      if (e.target.value === "") this.insideTableData = this.value;
+    handleClear (e) {
+      if (e.target.value === '') this.insideTableData = this.value
     },
-    handleSearch() {
+    handleSearch () {
       this.insideTableData = this.value.filter(
         item => item[this.searchKey].indexOf(this.searchValue) > -1
-      );
+      )
     },
-    handleTableData() {
+    handleTableData () {
       this.insideTableData = this.value.map((item, index) => {
-        let res = item;
-        res.initRowIndex = index;
-        return res;
-      });
+        let res = item
+        res.initRowIndex = index
+        return res
+      })
       // this.insideTableData = [{"a": 1}]
     },
-    exportCsv(params) {
-      this.$refs.tablesMain.exportCsv(params);
+    exportCsv (params) {
+      this.$refs.tablesMain.exportCsv(params)
     },
-    clearCurrentRow() {
-      this.$refs.talbesMain.clearCurrentRow();
+    clearCurrentRow () {
+      this.$refs.talbesMain.clearCurrentRow()
     },
-    onCurrentChange(currentRow, oldCurrentRow) {
-      this.$emit("on-current-change", currentRow, oldCurrentRow);
+    onCurrentChange (currentRow, oldCurrentRow) {
+      this.$emit('on-current-change', currentRow, oldCurrentRow)
     },
-    onSelect(selection, row) {
-      this.$emit("on-select", selection, row);
+    onSelect (selection, row) {
+      this.$emit('on-select', selection, row)
     },
-    onSelectCancel(selection, row) {
-      this.$emit("on-select-cancel", selection, row);
+    onSelectCancel (selection, row) {
+      this.$emit('on-select-cancel', selection, row)
     },
-    onSelectAll(selection) {
-      this.$emit("on-select-all", selection);
+    onSelectAll (selection) {
+      this.$emit('on-select-all', selection)
     },
-    onSelectionChange(selection) {
-      this.$emit("on-selection-change", selection);
+    onSelectionChange (selection) {
+      this.$emit('on-selection-change', selection)
     },
-    onSortChange(column, key, order) {
-      this.$emit("on-sort-change", column, key, order);
+    onSortChange (column, key, order) {
+      this.$emit('on-sort-change', column, key, order)
     },
-    onFilterChange(row) {
-      this.$emit("on-filter-change", row);
+    onFilterChange (row) {
+      this.$emit('on-filter-change', row)
     },
-    onRowClick(row, index) {
-      this.$emit("on-row-click", row, index);
+    onRowClick (row, index) {
+      this.$emit('on-row-click', row, index)
     },
-    onRowDblclick(row, index) {
-      this.$emit("on-row-dblclick", row, index);
+    onRowDblclick (row, index) {
+      this.$emit('on-row-dblclick', row, index)
     },
-    onExpand(row, status) {
-      this.$emit("on-expand", row, status);
+    onExpand (row, status) {
+      this.$emit('on-expand', row, status)
     },
-    onTimeRange(timeRange, type) {
-      let startTime = timeRange[0];
-      let endTime = timeRange[1];
-      // this.insideTableData = this.value.filter(item => item[this.searchKey].indexOf(this.searchValue) > -1)
-      // this.insideTableData = this.value.filter(item => item['createTime'] === '2004-04-15')
-      this.insideTableData = this.value.filter(
-        item =>
-          new Date(item["createTime"]) >= new Date(startTime) &&
-          new Date(item["createTime"]) <= new Date(endTime)
-      );
+    onTimeRange (timeRange, type) {
+      // let startTime = timeRange[0]
+      // let endTime = timeRange[1]
+      // // this.insideTableData = this.value.filter(item => item[this.searchKey].indexOf(this.searchValue) > -1)
+      // // this.insideTableData = this.value.filter(item => item['createTime'] === '2004-04-15')
+      // this.insideTableData = this.value.filter(
+      //   item =>
+      //     new Date(item['createTime']) >= new Date(startTime) &&
+      //     new Date(item['createTime']) <= new Date(endTime)
+      // )
+      // let username = localStorage.getItem('username');
+      // let token = localStorage.getItem('token');
+      // let pid = "2";
+      // let page = "0";
+      // let start = timeRange[0];
+      // let end = timeRange[1];
+      // let params = {
+      //   username,
+      //   token,
+      //   pid,
+      //   page,
+      //   start,
+      //   end
+      // }
+      // getTableData(params).then(res => {
+      //   console.log(res, 1234)
+      // })
       // console.log(startTime, endTime);
     }
   },
   watch: {
-    columns(columns) {
-      this.handleColumns(columns);
-      this.setDefaultSearchKey();
+    columns (columns) {
+      this.handleColumns(columns)
+      this.setDefaultSearchKey()
     },
-    value(val) {
-      this.handleTableData();
-      this.handleSearch();
+    value (val) {
+      this.handleTableData()
+      this.handleSearch()
     }
   },
-  mounted() {
-    this.handleColumns(this.columns);
-    this.setDefaultSearchKey();
-    this.handleTableData();
+  mounted () {
+    this.handleColumns(this.columns)
+    this.setDefaultSearchKey()
+    this.handleTableData()
   }
-};
+}
 </script>

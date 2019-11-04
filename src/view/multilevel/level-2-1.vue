@@ -3,6 +3,15 @@
 </template>
 <script>
 export default {
-  name: 'level_2_1'
+  name: 'level_2_1',
+  data () {
+    return {
+
+    }
+  },
+  mounted () {
+    let pid = 2;
+    localStorage.setItem('pid', pid)
+  }
 }
 </script>

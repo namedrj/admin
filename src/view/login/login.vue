@@ -25,15 +25,18 @@ export default {
   methods: {
     ...mapActions([
       'handleLogin',
-      'getUserInfo'
+      'handleChannelInfo'
     ]),
     handleSubmit ({ userName, password }) {
       this.handleLogin({ userName, password }).then(res => {
         if (res.data.status == 0) {
           localStorage.setItem('token', res.data.token)
           localStorage.setItem('username', userName)
-        console.log(res)
-        this.$router.push('/home')
+          let token = localStorage.getItem('token');
+          let username = localStorage.getItem('username')
+          this.handleChannelInfo({ username, token }).then(res => {
+            this.$router.push('/multilevel/level_2_1')
+          })
         }
       })
       // this.handleLogin({ userName, password }).then(res => {

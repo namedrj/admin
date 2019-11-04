@@ -1,7 +1,20 @@
 <template>
   <div>
     <Card>
-      <Button style="margin: 10px 0;" type="primary" @click="exportExcel">导出数据</Button>
+
+      <div style="display: flex;align-items: center;">
+        <div style="display: flex;justify-content: flex-start;align-items: center;width: 20%"><Button style="margin: 10px 0;" type="primary" @click="exportExcel">导出数据</Button></div>
+        <div style="display: flex;justify-content: flex-end;align-items: center;width: 80%">
+          <span>按日期筛选：</span>
+          <DatePicker
+            type="daterange"
+            placement="bottom-end"
+            placeholder="选择时间范围"
+            style="width: 200px;"
+            @on-change="onTimeRange"
+          ></DatePicker>
+        </div>
+      </div>
       <tables
         ref="tables"
         editable
@@ -11,14 +24,16 @@
         :columns="columns"
         @on-delete="handleDelete"
       />
-      <Page :total="total" show-total show-sizer @on-change="changePage" />
+      <div style="display: flex; width: 100%; justify-content: flex-start;align-items: center; padding: 10px 0;">
+      <Page :total="total" show-total :current="current" @on-change="changePage" />
+      </div>
     </Card>
   </div>
 </template>
 
 <script>
 import Tables from "_c/tables";
-import { getTableData } from "@/api/data";
+import { getTableData, getExport } from "@/api/data";
 export default {
   name: "tables_page",
   components: {
@@ -68,43 +83,74 @@ export default {
       ],
       tableData: [],
       total: 0, //总条数
-      pageIndex: 1, //当前页
-      pageSize: 10 //每页显示条数
+      current: 1, //当前页
     };
   },
   methods: {
     handleDelete(params) {},
     exportExcel() {
       this.$refs.tables.exportCsv({
-        filename: `table-${new Date().valueOf()}.csv`
+        filename: `table-${new Date().valueOf()}`
       });
     },
+    onTimeRange(timeRange, type) {
+      let username = localStorage.getItem('username');
+      let token = localStorage.getItem('token');
+      let pid = "2";
+      let page = "0";
+      let start = new Date(timeRange[0]).getTime();
+      let end = new Date(timeRange[1]).getTime();
+      let params = {
+        username,
+        token,
+        pid,
+        page,
+        start,
+        end
+      }
+      // 时间筛选接口
+      getTableData(params).then(res => {
+        if (res.data.status === 0) {
+        this.tableData = res.data.data.map((item, index) => {
+          return {
+            createTime: item.day,
+            visituv: item.uv,
+            visitpv: item.pv,
+            clickuv: item.uv,
+            downloads: item.download,
+            registers: item.regist,
+            registerRate: item.regist_change,
+            adRevenue: item.coming,
+            rewardCost: item.cost,
+            adProfit: item.profit,
+            uvContribute: item.uv_contribute
+          };
+        });
+        this.total = this.tableData.length;
+      }
+      })
+    },
     changePage() {
-      console.log(this.pageIndex);
+      console.log(this.current)
     }
   },
   mounted() {
-    console.log(this.$store);
     let username = localStorage.getItem('username');
     let token = localStorage.getItem('token');
-    let pid = "2";
+    let pid = localStorage.getItem('pid');
     let page = "0";
-    // let username = "test";
-    // let token = "9d902d76de9d0f6d7a00fb71144ae84f";
-    // let pid = "2";
-    // let page = "0";
     let params = {
       username,
       token,
       pid,
       page
     };
+    // 表格信息查询接口
     getTableData(params).then(res => {
       if (res.data.status === 0) {
         this.tableData = res.data.data.map((item, index) => {
           return {
-            // createTime: item.time,
-            createTime: new Date(Number(item.time)).toJSON().substr(0, 10),
+            createTime: item.day,
             visituv: item.uv,
             visitpv: item.pv,
             clickuv: item.uv,
@@ -120,6 +166,8 @@ export default {
         this.total = this.tableData.length;
       }
     });
+
+
   }
 };
 </script>

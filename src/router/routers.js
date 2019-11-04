@@ -49,15 +49,15 @@ export default [
       }
     ]
   },
-  {
-    path: '',
-    name: 'doc',
-    meta: {
-      title: '后台首页',
-      href: 'https://lison16.github.io/iview-admin-doc/#/',
-      icon: 'ios-book'
-    }
-  },
+  // {
+  //   path: '',
+  //   name: 'doc',
+  //   meta: {
+  //     title: '后台首页',
+  //     // href: 'https://lison16.github.io/iview-admin-doc/#/',
+  //     icon: 'ios-book'
+  //   }
+  // },
   {
     path: '/multilevel',
     name: 'multilevel',
@@ -72,12 +72,12 @@ export default [
         name: 'level_2_1',
         meta: {
           icon: 'md-funnel',
-          title: '类目-1-表格'
+          title: '段子福利社'
         },
         // component: () => import('@/view/multilevel/level-2-1.vue')
         component: () => import('@/view/tables/tables.vue')
       },
-      {
+      /* {
         path: 'level_2_2',
         name: 'level_2_2',
         meta: {
@@ -99,15 +99,15 @@ export default [
           }
         ]
       },
+      */
       {
         path: 'level_2_3',
         name: 'level_2_3',
         meta: {
           icon: 'md-funnel',
-          title: '二级-3',
-          hideInMenu: 'true'
+          title: '趣专享'
         },
-        component: () => import('@/view/multilevel/level-2-3.vue')
+        component: () => import('@/view/tables/tables.vue')
       }
     ]
   },

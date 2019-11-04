@@ -19,9 +19,9 @@ export default {
     // pro: 'https://produce.com'
   },
   /**
-   * @description 默认打开的首页的路由name值，默认为home
+   * @description 默认打开的首页的路由name值，默认为tables_page
    */
-  homeName: 'home',
+  homeName: 'tables_page',
   /**
    * @description 需要加载的插件
    */
