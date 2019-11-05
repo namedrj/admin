@@ -78,10 +78,8 @@ export default {
       this.$emit('on-select', name)
       if (name == 'level_2_1') {
         localStorage.setItem('pid', 2)
-        // this.$router.push('level_2_1')
       } else if (name == 'level_2_3') {
         localStorage.setItem('pid', 10034)
-        // this.$router.push('level_2_3')
       }
     },
     getOpenedNamesByActiveName (name) {

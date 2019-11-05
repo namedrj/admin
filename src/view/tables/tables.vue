@@ -1,10 +1,17 @@
 <template>
   <div>
     <Card>
-
       <div style="display: flex;align-items: center;">
-        <div style="display: flex;justify-content: flex-start;align-items: center;width: 20%"><Button style="margin: 10px 0;" type="primary" @click="exportExcel">导出数据</Button></div>
-        <div style="display: flex;justify-content: flex-end;align-items: center;width: 80%">
+        <div
+          style="display: flex;justify-content: flex-start;align-items: center;width: 20%"
+        >
+          <Button style="margin: 10px 0;" type="primary" @click="exportExcel"
+            >导出数据</Button
+          >
+        </div>
+        <div
+          style="display: flex;justify-content: flex-end;align-items: center;width: 80%"
+        >
           <span>按日期筛选：</span>
           <DatePicker
             type="daterange"
@@ -24,8 +31,15 @@
         :columns="columns"
         @on-delete="handleDelete"
       />
-      <div style="display: flex; width: 100%; justify-content: flex-start;align-items: center; padding: 10px 0;">
-      <Page :total="total" show-total :current="current" @on-change="changePage" />
+      <div
+        style="display: flex; width: 100%; justify-content: flex-start;align-items: center; padding: 10px 0;"
+      >
+        <Page
+          :total="total"
+          show-total
+          :current.sync="current"
+          @on-change="changePage"
+        />
       </div>
     </Card>
   </div>
@@ -83,7 +97,7 @@ export default {
       ],
       tableData: [],
       total: 0, //总条数
-      current: 1, //当前页
+      current: 0 //当前页
     };
   },
   methods: {
@@ -94,9 +108,9 @@ export default {
       });
     },
     onTimeRange(timeRange, type) {
-      let username = localStorage.getItem('username');
-      let token = localStorage.getItem('token');
-      let pid = "2";
+      let username = localStorage.getItem("username");
+      let token = localStorage.getItem("token");
+      let pid = localStorage.getItem('pid');
       let page = "0";
       let start = new Date(timeRange[0]).getTime();
       let end = new Date(timeRange[1]).getTime();
@@ -107,38 +121,96 @@ export default {
         page,
         start,
         end
-      }
+      };
       // 时间筛选接口
       getTableData(params).then(res => {
         if (res.data.status === 0) {
-        this.tableData = res.data.data.map((item, index) => {
-          return {
-            createTime: item.day,
-            visituv: item.uv,
-            visitpv: item.pv,
-            clickuv: item.uv,
-            downloads: item.download,
-            registers: item.regist,
-            registerRate: item.regist_change,
-            adRevenue: item.coming,
-            rewardCost: item.cost,
-            adProfit: item.profit,
-            uvContribute: item.uv_contribute
-          };
-        });
-        this.total = this.tableData.length;
-      }
-      })
+          this.tableData = res.data.data.map((item, index) => {
+            return {
+              createTime: item.day,
+              visituv: item.uv,
+              visitpv: item.pv,
+              clickuv: item.uv,
+              downloads: item.download,
+              registers: item.regist,
+              registerRate: item.regist_change,
+              adRevenue: item.coming,
+              rewardCost: item.cost,
+              adProfit: item.profit,
+              uvContribute: item.uv_contribute
+            };
+          });
+          this.total = this.tableData.length;
+        }
+      });
     },
     changePage() {
-      console.log(this.current)
+      console.log(this.current);
+      let params = {
+        username: localStorage.getItem("username"),
+        token: localStorage.getItem("token"),
+        pid: localStorage.getItem('pid'),
+        page: this.current
+      };
+      getTableData(params).then(res => {
+        if (res.data.status === 0) {
+          this.tableData = res.data.data.map((item, index) => {
+            return {
+              createTime: item.day,
+              visituv: item.uv,
+              visitpv: item.pv,
+              clickuv: item.uv,
+              downloads: item.download,
+              registers: item.regist,
+              registerRate: item.regist_change,
+              adRevenue: item.coming,
+              rewardCost: item.cost,
+              adProfit: item.profit,
+              uvContribute: item.uv_contribute
+            };
+          });
+        }
+      });
+    }
+  },
+  watch: {
+    "$route": function (to, from) {
+      console.log(to,1234)
+      if (to.name !== from.name) {
+        let params = {
+        username: localStorage.getItem("username"),
+        token: localStorage.getItem("token"),
+        pid: localStorage.getItem('pid'),
+        page: 0
+      };
+      getTableData(params).then(res => {
+        if (res.data.status === 0) {
+          this.tableData = res.data.data.map((item, index) => {
+            return {
+              createTime: item.day,
+              visituv: item.uv,
+              visitpv: item.pv,
+              clickuv: item.uv,
+              downloads: item.download,
+              registers: item.regist,
+              registerRate: item.regist_change,
+              adRevenue: item.coming,
+              rewardCost: item.cost,
+              adProfit: item.profit,
+              uvContribute: item.uv_contribute
+            };
+          });
+          this.total = this.tableData.length;
+        }
+      });
+      }
     }
   },
   mounted() {
-    let username = localStorage.getItem('username');
-    let token = localStorage.getItem('token');
+    let username = localStorage.getItem("username");
+    let token = localStorage.getItem("token");
     let pid = localStorage.getItem('pid');
-    let page = "0";
+    let page = 0;
     let params = {
       username,
       token,
@@ -165,9 +237,8 @@ export default {
         });
         this.total = this.tableData.length;
       }
+        this.current = 1;
     });
-
-
   }
 };
 </script>
