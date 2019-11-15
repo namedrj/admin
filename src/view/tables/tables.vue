@@ -37,6 +37,7 @@
         <Page
           :total="total"
           show-total
+          :page-size="pageSize"
           :current.sync="current"
           @on-change="changePage"
         />
@@ -56,10 +57,6 @@ export default {
   data() {
     return {
       columns: [
-        // { title: '姓名', key: 'name', sortable: true },
-        // { title: '邮箱', key: 'email', editable: true },
-        // { title: '创建时间', key: 'createTime' },
-
         { title: "日期", key: "createTime", sortable: true },
         { title: "访问uv", key: "visituv", sortable: true },
         { title: "访问pv", key: "visitpv", sortable: true },
@@ -97,21 +94,23 @@ export default {
       ],
       tableData: [],
       total: 0, //总条数
-      current: 0 //当前页
+      current: 1, //当前页
+      pageSize: 10
     };
   },
   methods: {
     handleDelete(params) {},
     exportExcel() {
-      this.$refs.tables.exportCsv({
-        filename: `table-${new Date().valueOf()}`
-      });
+      // console.log(this,11111)
+      // this.$refs.tables.exportCsv({
+      //   filename: `table-${new Date().valueOf()}`
+      // });
     },
     onTimeRange(timeRange, type) {
       let username = localStorage.getItem("username");
       let token = localStorage.getItem("token");
-      let pid = localStorage.getItem('pid');
-      let page = "0";
+      let pid = localStorage.getItem("pid");
+      let page = 1;
       let start = new Date(timeRange[0]).getTime();
       let end = new Date(timeRange[1]).getTime();
       let params = {
@@ -140,16 +139,16 @@ export default {
               uvContribute: item.uv_contribute
             };
           });
-          this.total = this.tableData.length;
+          // this.total = this.tableData.length;
+          this.total = res.data.max * this.tableData.length;
         }
       });
     },
     changePage() {
-      console.log(this.current);
       let params = {
         username: localStorage.getItem("username"),
         token: localStorage.getItem("token"),
-        pid: localStorage.getItem('pid'),
+        pid: localStorage.getItem("pid"),
         page: this.current
       };
       getTableData(params).then(res => {
@@ -174,48 +173,51 @@ export default {
     }
   },
   watch: {
-    "$route": function (to, from) {
-      console.log(to,1234)
+    $route: function(to, from) {
       if (to.name !== from.name) {
         let params = {
-        username: localStorage.getItem("username"),
-        token: localStorage.getItem("token"),
-        pid: localStorage.getItem('pid'),
-        page: 0
-      };
-      getTableData(params).then(res => {
-        if (res.data.status === 0) {
-          this.tableData = res.data.data.map((item, index) => {
-            return {
-              createTime: item.day,
-              visituv: item.uv,
-              visitpv: item.pv,
-              clickuv: item.uv,
-              downloads: item.download,
-              registers: item.regist,
-              registerRate: item.regist_change,
-              adRevenue: item.coming,
-              rewardCost: item.cost,
-              adProfit: item.profit,
-              uvContribute: item.uv_contribute
-            };
-          });
-          this.total = this.tableData.length;
-        }
-      });
+          username: localStorage.getItem("username"),
+          token: localStorage.getItem("token"),
+          pid: localStorage.getItem("pid"),
+          page: this.current
+        };
+        getTableData(params).then(res => {
+          if (res.data.status === 0) {
+            this.tableData = res.data.data.map((item, index) => {
+              return {
+                createTime: item.day,
+                visituv: item.uv,
+                visitpv: item.pv,
+                clickuv: item.uv,
+                downloads: item.download,
+                registers: item.regist,
+                registerRate: item.regist_change,
+                adRevenue: item.coming,
+                rewardCost: item.cost,
+                adProfit: item.profit,
+                uvContribute: item.uv_contribute
+              };
+            });
+            // this.total = this.tableData.length;
+            console.log(res.data.data.length, "length");
+            if (res.data.data.length > 10) {
+              console.log(1234)
+              this.pageSize = 19;
+            } else {
+              this.pageSize = 10;
+            }
+            this.total = res.data.max * this.tableData.length;
+          }
+        });
       }
     }
   },
   mounted() {
-    let username = localStorage.getItem("username");
-    let token = localStorage.getItem("token");
-    let pid = localStorage.getItem('pid');
-    let page = 0;
     let params = {
-      username,
-      token,
-      pid,
-      page
+      username: localStorage.getItem("username"),
+      token: localStorage.getItem("token"),
+      pid: localStorage.getItem("pid"),
+      page: 1
     };
     // 表格信息查询接口
     getTableData(params).then(res => {
@@ -235,9 +237,9 @@ export default {
             uvContribute: item.uv_contribute
           };
         });
-        this.total = this.tableData.length;
+        // this.total = this.tableData.length;
+        this.total = res.data.max * this.tableData.length;
       }
-        this.current = 1;
     });
   }
 };

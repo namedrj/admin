@@ -136,6 +136,11 @@ export default {
       this.$emit('on-close', res, undefined, route)
     },
     handleClick (item) {
+      if (item.name == 'level_2_1') {
+        localStorage.setItem('pid', 2)
+      } else {
+        localStorage.setItem('pid', 10034)
+      }
       this.$emit('input', item)
     },
     showTitleInside (item) {
